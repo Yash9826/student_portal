@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+:root {
+  --ink-green: #1f3a2e;
+  --ink-green-dark: #16291f;
+  --paper: #f7f3e8;
+  --paper-dark: #efe8d6;
+  --card: #fffdf7;
+  --red-pen: #b33a2e;
+  --red-pen-dark: #8f2c22;
+  --gold-chalk: #d9a441;
+  --gold-chalk-dark: #b5842f;
+  --ink: #24302a;
+  --ink-soft: #5b6459;
+  --line: #cfc4a0;
+  --line-soft: #e2d9bd;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--gold-chalk);
+  color: var(--ink-green-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--red-pen);
+  outline-offset: 2px;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
