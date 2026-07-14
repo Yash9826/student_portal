@@ -114,9 +114,9 @@ export default function App() {
     }
   }
 
-  if (!isSupabaseConfigured) {
-    return <SetupNotice />;
-  }
+  // if (!isSupabaseConfigured) {
+  //   return <SetupNotice />;
+  // }
 
   if (loading) {
     return (
