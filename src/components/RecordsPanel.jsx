@@ -6,8 +6,8 @@ import "./RecordsPanel.css";
 const emptyFilters = {
   search: "",
   studentClass: "all",
-  section: "all",
   gender: "all",
+  casteCategory: "all",
   grade: "all",
 };
 
@@ -17,32 +17,36 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
 
   const options = useMemo(() => {
     const classes = new Set();
-    const sections = new Set();
     const genders = new Set();
+    const categories = new Set();
     students.forEach((s) => {
       if (s.studentClass) classes.add(s.studentClass);
-      if (s.section) sections.add(s.section);
       if (s.gender) genders.add(s.gender);
+      if (s.casteCategory) categories.add(s.casteCategory);
     });
     return {
       classes: [...classes].sort(),
-      sections: [...sections].sort(),
       genders: [...genders].sort(),
+      categories: [...categories].sort(),
     };
   }, [students]);
 
+  // This is the single source of truth for what gets shown AND what gets
+  // exported — the Excel download always matches exactly what's on screen.
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     return students.filter((s) => {
       const { percentage } = computeTotals(s.marks);
       const grade = gradeFor(percentage);
       if (q) {
-        const hay = `${s.name} ${s.rollNo} ${s.guardianName || ""}`.toLowerCase();
+        const hay = `${s.name} ${s.rollNo} ${s.guardianName || ""} ${s.motherName || ""} ${
+          s.village || ""
+        } ${s.scholarNumber || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (filters.studentClass !== "all" && s.studentClass !== filters.studentClass) return false;
-      if (filters.section !== "all" && s.section !== filters.section) return false;
       if (filters.gender !== "all" && s.gender !== filters.gender) return false;
+      if (filters.casteCategory !== "all" && s.casteCategory !== filters.casteCategory) return false;
       if (filters.grade !== "all" && grade !== filters.grade) return false;
       return true;
     });
@@ -63,12 +67,16 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
     exportStudentsToExcel(filtered, subjects, "students-register.xlsx");
   }
 
+  const filtersActive =
+    filters.search || filters.studentClass !== "all" || filters.gender !== "all" ||
+    filters.casteCategory !== "all" || filters.grade !== "all";
+
   return (
     <div className="records-panel">
       <section className="filter-bar">
         <input
           className="filter-search"
-          placeholder="Search by name, roll no, or guardian..."
+          placeholder="Search name, roll no, guardian, village..."
           value={filters.search}
           onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
         />
@@ -85,26 +93,23 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
           ))}
         </select>
 
-        <select
-          value={filters.section}
-          onChange={(e) => setFilters((f) => ({ ...f, section: e.target.value }))}
-        >
-          <option value="all">All Sections</option>
-          {options.sections.map((s) => (
-            <option key={s} value={s}>
-              Section {s}
+        <select value={filters.gender} onChange={(e) => setFilters((f) => ({ ...f, gender: e.target.value }))}>
+          <option value="all">All Genders</option>
+          {options.genders.map((g) => (
+            <option key={g} value={g}>
+              {g}
             </option>
           ))}
         </select>
 
         <select
-          value={filters.gender}
-          onChange={(e) => setFilters((f) => ({ ...f, gender: e.target.value }))}
+          value={filters.casteCategory}
+          onChange={(e) => setFilters((f) => ({ ...f, casteCategory: e.target.value }))}
         >
-          <option value="all">All Genders</option>
-          {options.genders.map((g) => (
-            <option key={g} value={g}>
-              {g}
+          <option value="all">All Categories</option>
+          {options.categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
             </option>
           ))}
         </select>
@@ -127,6 +132,13 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
         </button>
       </section>
 
+      {filtersActive && (
+        <p className="filter-hint">
+          Export downloads exactly these {filtered.length} filtered record
+          {filtered.length === 1 ? "" : "s"} — not the full register.
+        </p>
+      )}
+
       <section className="records-table-wrap scrollbar-thin">
         {filtered.length === 0 ? (
           <div className="records-empty">
@@ -141,8 +153,11 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
                 <th>Roll</th>
                 <th>Name</th>
                 <th>Class</th>
-                <th>Section</th>
                 <th>Gender</th>
+                <th>Category</th>
+                <th>Village</th>
+                <th>Scholar No</th>
+                <th>Admission</th>
                 {subjects.map((s) => (
                   <th key={s} className="mono-col">
                     {s}
@@ -164,12 +179,19 @@ export default function RecordsPanel({ students, subjects, selectedId, onEdit, o
                     <td className="name-col">
                       <div className="name-cell">
                         <span>{s.name}</span>
-                        {s.guardianName && <span className="sub-cell">{s.guardianName}</span>}
+                        {(s.guardianName || s.motherName) && (
+                          <span className="sub-cell">
+                            {[s.guardianName, s.motherName].filter(Boolean).join(" · ")}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td>{s.studentClass}</td>
-                    <td>{s.section || "—"}</td>
                     <td>{s.gender || "—"}</td>
+                    <td>{s.casteCategory || "—"}</td>
+                    <td>{s.village || "—"}</td>
+                    <td className="mono-col">{s.scholarNumber || "—"}</td>
+                    <td className="mono-col">{s.admissionDate || "—"}</td>
                     {subjects.map((subj) => (
                       <td key={subj} className="mono-col">
                         {s.marks?.[subj] ?? "—"}

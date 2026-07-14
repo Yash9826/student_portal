@@ -1,55 +1,110 @@
-const STORAGE_KEY = "register_students_v1";
-const SUBJECTS_KEY = "register_subjects_v1";
+import { supabase, isSupabaseConfigured } from "./supabaseClient";
+
 const DEFAULT_SUBJECTS = ["Mathematics", "Science", "English", "Social Studies", "Computer"];
 
-export function loadSubjects() {
-  try {
-    const raw = localStorage.getItem(SUBJECTS_KEY);
-    if (!raw) return DEFAULT_SUBJECTS;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_SUBJECTS;
-  } catch {
-    return DEFAULT_SUBJECTS;
+// ---- mapping helpers: DB (snake_case) <-> app (camelCase) ----
+
+function rowToStudent(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    rollNo: row.roll_no,
+    studentClass: row.student_class,
+    gender: row.gender || "",
+    dob: row.dob || "",
+    guardianName: row.guardian_name || "",
+    motherName: row.mother_name || "",
+    casteCategory: row.caste_category || "",
+    village: row.village || "",
+    scholarNumber: row.scholar_number || "",
+    admissionDate: row.admission_date || "",
+    contact: row.contact || "",
+    marks: row.marks || {},
+    registeredAt: row.registered_at,
+  };
+}
+
+function studentToRow(student) {
+  return {
+    name: student.name,
+    roll_no: student.rollNo,
+    student_class: student.studentClass,
+    gender: student.gender || null,
+    dob: student.dob || null,
+    guardian_name: student.guardianName || null,
+    mother_name: student.motherName || null,
+    caste_category: student.casteCategory || null,
+    village: student.village || null,
+    scholar_number: student.scholarNumber || null,
+    admission_date: student.admissionDate || null,
+    contact: student.contact || null,
+    marks: student.marks || {},
+  };
+}
+
+function requireSupabase() {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      "Supabase is not configured yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY " +
+        "to a .env file — see README.md."
+    );
   }
 }
 
-export function saveSubjects(subjects) {
-  localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+// ---- students ----
+
+export async function loadStudents() {
+  requireSupabase();
+  const { data, error } = await supabase
+    .from("students")
+    .select("*")
+    .order("registered_at", { ascending: false });
+  if (error) throw error;
+  return (data || []).map(rowToStudent);
 }
 
-export function loadStudents() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+export async function addStudent(student) {
+  requireSupabase();
+  const { error } = await supabase.from("students").insert(studentToRow(student));
+  if (error) throw error;
+  return loadStudents();
 }
 
-export function saveStudents(students) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+export async function updateStudent(id, patch) {
+  requireSupabase();
+  const { error } = await supabase.from("students").update(studentToRow(patch)).eq("id", id);
+  if (error) throw error;
+  return loadStudents();
 }
 
-export function addStudent(student) {
-  const students = loadStudents();
-  const withId = { ...student, id: crypto.randomUUID(), registeredAt: new Date().toISOString() };
-  const updated = [withId, ...students];
-  saveStudents(updated);
-  return updated;
+export async function deleteStudent(id) {
+  requireSupabase();
+  const { error } = await supabase.from("students").delete().eq("id", id);
+  if (error) throw error;
+  return loadStudents();
 }
 
-export function updateStudent(id, patch) {
-  const students = loadStudents();
-  const updated = students.map((s) => (s.id === id ? { ...s, ...patch } : s));
-  saveStudents(updated);
-  return updated;
+// ---- subjects ----
+
+export async function loadSubjects() {
+  requireSupabase();
+  const { data, error } = await supabase.from("subjects").select("*").order("sort_order", { ascending: true });
+  if (error) throw error;
+  if (!data || data.length === 0) return DEFAULT_SUBJECTS;
+  return data.map((row) => row.name);
 }
 
-export function deleteStudent(id) {
-  const students = loadStudents();
-  const updated = students.filter((s) => s.id !== id);
-  saveStudents(updated);
-  return updated;
+export async function addSubject(name, currentSubjects) {
+  requireSupabase();
+  const nextOrder = currentSubjects.length + 1;
+  const { error } = await supabase.from("subjects").insert({ name, sort_order: nextOrder });
+  if (error) throw error;
+  return loadSubjects();
+}
+
+export async function removeSubject(name) {
+  requireSupabase();
+  const { error } = await supabase.from("subjects").delete().eq("name", name);
+  if (error) throw error;
+  return loadSubjects();
 }

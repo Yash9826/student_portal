@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { computeTotals, gradeFor } from "../utils/marks";
+import { CLASS_OPTIONS, CASTE_OPTIONS, GENDER_OPTIONS } from "../utils/constants";
 import "./RegistrationForm.css";
 
 const emptyDetails = {
   name: "",
   rollNo: "",
   studentClass: "",
-  section: "",
   gender: "",
   dob: "",
   guardianName: "",
+  motherName: "",
+  casteCategory: "",
+  village: "",
+  scholarNumber: "",
+  admissionDate: "",
   contact: "",
 };
 
@@ -27,10 +32,14 @@ export default function RegistrationForm({
           name: initialData.name || "",
           rollNo: initialData.rollNo || "",
           studentClass: initialData.studentClass || "",
-          section: initialData.section || "",
           gender: initialData.gender || "",
           dob: initialData.dob || "",
           guardianName: initialData.guardianName || "",
+          motherName: initialData.motherName || "",
+          casteCategory: initialData.casteCategory || "",
+          village: initialData.village || "",
+          scholarNumber: initialData.scholarNumber || "",
+          admissionDate: initialData.admissionDate || "",
           contact: initialData.contact || "",
         }
       : emptyDetails
@@ -55,7 +64,7 @@ export default function RegistrationForm({
     const next = {};
     if (!details.name.trim()) next.name = "Enter the student's name.";
     if (!details.rollNo.trim()) next.rollNo = "Enter a roll number.";
-    if (!details.studentClass.trim()) next.studentClass = "Enter the class.";
+    if (!details.studentClass.trim()) next.studentClass = "Select a class.";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -99,27 +108,28 @@ export default function RegistrationForm({
             </Field>
           </div>
 
-          <div className="field-row three">
+          <div className="field-row two">
             <Field label="Class" error={errors.studentClass}>
-              <input
+              <select
                 value={details.studentClass}
                 onChange={(e) => updateField("studentClass", e.target.value)}
-                placeholder="e.g. 10"
-              />
-            </Field>
-            <Field label="Section">
-              <input
-                value={details.section}
-                onChange={(e) => updateField("section", e.target.value)}
-                placeholder="e.g. A"
-              />
+              >
+                <option value="">Select class</option>
+                {CLASS_OPTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    Class {c}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Gender">
               <select value={details.gender} onChange={(e) => updateField("gender", e.target.value)}>
                 <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                {GENDER_OPTIONS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
               </select>
             </Field>
           </div>
@@ -132,16 +142,63 @@ export default function RegistrationForm({
                 onChange={(e) => updateField("dob", e.target.value)}
               />
             </Field>
-            <Field label="Guardian Name">
+            <Field label="Date of Admission">
               <input
-                value={details.guardianName}
-                onChange={(e) => updateField("guardianName", e.target.value)}
-                placeholder="Parent / guardian"
+                type="date"
+                value={details.admissionDate}
+                onChange={(e) => updateField("admissionDate", e.target.value)}
               />
             </Field>
           </div>
 
           <div className="field-row two">
+            <Field label="Guardian / Father Name">
+              <input
+                value={details.guardianName}
+                onChange={(e) => updateField("guardianName", e.target.value)}
+                placeholder="Father / guardian"
+              />
+            </Field>
+            <Field label="Mother Name">
+              <input
+                value={details.motherName}
+                onChange={(e) => updateField("motherName", e.target.value)}
+                placeholder="Mother's name"
+              />
+            </Field>
+          </div>
+
+          <div className="field-row two">
+            <Field label="Category">
+              <select
+                value={details.casteCategory}
+                onChange={(e) => updateField("casteCategory", e.target.value)}
+              >
+                <option value="">Select</option>
+                {CASTE_OPTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Village">
+              <input
+                value={details.village}
+                onChange={(e) => updateField("village", e.target.value)}
+                placeholder="e.g. Rampur"
+              />
+            </Field>
+          </div>
+
+          <div className="field-row two">
+            <Field label="Scholar Number">
+              <input
+                value={details.scholarNumber}
+                onChange={(e) => updateField("scholarNumber", e.target.value)}
+                placeholder="e.g. SCH-1024"
+              />
+            </Field>
             <Field label="Contact Number">
               <input
                 value={details.contact}
@@ -152,7 +209,7 @@ export default function RegistrationForm({
           </div>
         </section>
 
-        <section className="reg-card">
+        {/* <section className="reg-card">
           <div className="reg-card-heading-row">
             <h2 className="reg-card-title">Marks by Subject</h2>
             <span className="reg-card-hint">Out of 100 each</span>
@@ -197,7 +254,7 @@ export default function RegistrationForm({
               }}
             />
             <button type="button" onClick={handleAddSubject}>
-              Add Subject
+              Add
             </button>
           </div>
 
@@ -217,7 +274,7 @@ export default function RegistrationForm({
               <span className={`summary-grade grade-pill-${grade.charAt(0)}`}>{grade}</span>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
 
       <div className="reg-actions">

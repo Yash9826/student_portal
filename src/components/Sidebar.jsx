@@ -12,7 +12,8 @@ export default function Sidebar({ students, selectedId, onSelect, onNew }) {
       (s) =>
         s.name?.toLowerCase().includes(q) ||
         s.rollNo?.toLowerCase().includes(q) ||
-        s.studentClass?.toLowerCase().includes(q)
+        s.studentClass?.toLowerCase().includes(q) ||
+        s.scholarNumber?.toLowerCase().includes(q)
     );
   }, [students, query]);
 
@@ -62,7 +63,6 @@ export default function Sidebar({ students, selectedId, onSelect, onNew }) {
                 <span className="sidebar-item-name">{s.name}</span>
                 <span className="sidebar-item-meta">
                   Roll {s.rollNo} &middot; Class {s.studentClass}
-                  {s.section ? `-${s.section}` : ""}
                 </span>
               </span>
               <span className={`sidebar-item-grade grade-${grade.charAt(0)}`}>{grade}</span>

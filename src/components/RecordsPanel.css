@@ -1,28 +1,28 @@
 .records-panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  background: var(--card);
-  border: 1px solid var(--line-soft);
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
 }
 
 .filter-bar select,
 .filter-search {
-  padding: 9px 11px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  font-size: 13.5px;
-  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--text);
 }
 
 .filter-search {
@@ -32,35 +32,35 @@
 
 .filter-reset {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  font-size: 13px;
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 9px 14px;
-  border-radius: 8px;
+  padding: 8px 13px;
+  border-radius: 7px;
   cursor: pointer;
 }
 
 .filter-reset:hover {
-  border-color: var(--ink-soft);
-  color: var(--ink);
+  border-color: var(--text-soft);
+  color: var(--text);
 }
 
 .filter-export {
   margin-left: auto;
-  background: var(--ink-green);
-  color: var(--paper);
+  background: var(--accent);
+  color: #ffffff;
   border: none;
-  font-weight: 700;
-  font-size: 13.5px;
-  padding: 10px 18px;
-  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: 7px;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .filter-export:hover:not(:disabled) {
-  background: var(--ink-green-dark);
+  background: var(--accent-hover);
 }
 
 .filter-export:disabled {
@@ -68,56 +68,63 @@
   cursor: not-allowed;
 }
 
+.filter-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-faint);
+  padding: 0 2px;
+}
+
 /* Table */
 
 .records-table-wrap {
-  background: var(--card);
-  border: 1px solid var(--line-soft);
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   overflow: auto;
 }
 
 .records-empty {
-  padding: 48px 20px;
+  padding: 44px 20px;
   text-align: center;
-  color: var(--ink-soft);
-  font-size: 14px;
+  color: var(--text-faint);
+  font-size: 13.5px;
 }
 
 .records-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .records-table thead th {
   text-align: left;
-  padding: 12px 14px;
-  background: var(--paper-dark);
-  color: var(--ink-soft);
-  font-size: 11.5px;
+  padding: 11px 13px;
+  background: var(--bg);
+  color: var(--text-soft);
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   font-weight: 700;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
   position: sticky;
   top: 0;
 }
 
 .records-table tbody td {
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line-soft);
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border-soft);
   white-space: nowrap;
-  color: var(--ink);
+  color: var(--text);
 }
 
 .records-table tbody tr:hover {
-  background: rgba(217, 164, 65, 0.06);
+  background: var(--bg);
 }
 
 .row-selected {
-  background: rgba(217, 164, 65, 0.14) !important;
+  background: var(--accent-soft) !important;
 }
 
 .mono-col {
@@ -136,34 +143,34 @@
 }
 
 .sub-cell {
-  font-size: 11.5px;
-  color: var(--ink-soft);
+  font-size: 11px;
+  color: var(--text-faint);
 }
 
 .grade-pill {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 2px 9px;
   border-radius: 999px;
 }
 
 .grade-pill-A {
-  background: rgba(31, 58, 46, 0.12);
-  color: var(--ink-green);
+  background: var(--success-soft);
+  color: var(--success);
 }
 .grade-pill-B {
-  background: rgba(217, 164, 65, 0.22);
-  color: var(--gold-chalk-dark);
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .grade-pill-C,
 .grade-pill-D {
-  background: rgba(217, 164, 65, 0.14);
-  color: var(--gold-chalk-dark);
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .grade-pill-F {
-  background: rgba(179, 58, 46, 0.14);
-  color: var(--red-pen);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .actions-col {
@@ -172,30 +179,30 @@
 }
 
 .row-btn {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   background: transparent;
-  color: var(--ink-soft);
-  font-size: 12px;
+  color: var(--text-soft);
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .row-btn:hover {
-  border-color: var(--ink-soft);
-  color: var(--ink);
+  border-color: var(--text-soft);
+  color: var(--text);
 }
 
 .row-btn-danger {
-  color: var(--red-pen);
-  border-color: rgba(179, 58, 46, 0.35);
+  color: var(--danger);
+  border-color: rgba(220, 38, 38, 0.3);
 }
 
 .row-btn-danger:hover {
-  background: var(--red-pen);
-  color: var(--paper);
-  border-color: var(--red-pen);
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
 }
 
 .confirm-inline {

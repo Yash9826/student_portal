@@ -1,15 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import RegistrationForm from "./components/RegistrationForm";
 import RecordsPanel from "./components/RecordsPanel";
+import SetupNotice from "./components/SetupNotice";
 import {
   loadStudents,
   addStudent,
   updateStudent,
   deleteStudent,
   loadSubjects,
-  saveSubjects,
+  addSubject,
+  removeSubject,
 } from "./utils/storage";
+import { isSupabaseConfigured } from "./utils/supabaseClient";
 import "./App.css";
 
 export default function App() {
@@ -19,11 +22,29 @@ export default function App() {
   const [editingId, setEditingId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  const refresh = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const [s, subj] = await Promise.all([loadStudents(), loadSubjects()]);
+      setStudents(s);
+      setSubjects(subj);
+    } catch (err) {
+      setLoadError(err.message || "Failed to load data.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    setStudents(loadStudents());
-    setSubjects(loadSubjects());
-  }, []);
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+    refresh();
+  }, [refresh]);
 
   useEffect(() => {
     if (!toast) return;
@@ -36,28 +57,36 @@ export default function App() {
     [students, editingId]
   );
 
-  function handleSave(studentData) {
-    if (editingId) {
-      const updated = updateStudent(editingId, studentData);
-      setStudents(updated);
-      setToast({ type: "ok", msg: `${studentData.name}'s record was updated.` });
-      setEditingId(null);
-    } else {
-      const updated = addStudent(studentData);
-      setStudents(updated);
-      setToast({ type: "ok", msg: `${studentData.name} was added to the register.` });
+  async function handleSave(studentData) {
+    try {
+      if (editingId) {
+        const updated = await updateStudent(editingId, studentData);
+        setStudents(updated);
+        setToast({ type: "ok", msg: `${studentData.name}'s record was updated.` });
+        setEditingId(null);
+      } else {
+        const updated = await addStudent(studentData);
+        setStudents(updated);
+        setToast({ type: "ok", msg: `${studentData.name} was added to the register.` });
+      }
+      setActiveTab("records");
+      setSelectedId(null);
+    } catch (err) {
+      setToast({ type: "warn", msg: err.message || "Could not save. Check your connection." });
     }
-    setActiveTab("records");
-    setSelectedId(null);
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     const student = students.find((s) => s.id === id);
-    const updated = deleteStudent(id);
-    setStudents(updated);
-    setToast({ type: "warn", msg: `${student?.name || "Student"} was removed.` });
-    if (selectedId === id) setSelectedId(null);
-    if (editingId === id) setEditingId(null);
+    try {
+      const updated = await deleteStudent(id);
+      setStudents(updated);
+      setToast({ type: "warn", msg: `${student?.name || "Student"} was removed.` });
+      if (selectedId === id) setSelectedId(null);
+      if (editingId === id) setEditingId(null);
+    } catch (err) {
+      setToast({ type: "warn", msg: err.message || "Could not delete that record." });
+    }
   }
 
   function handleEdit(id) {
@@ -65,17 +94,47 @@ export default function App() {
     setActiveTab("register");
   }
 
-  function handleAddSubject(subject) {
+  async function handleAddSubject(subject) {
     if (!subject.trim()) return;
-    const next = [...new Set([...subjects, subject.trim()])];
-    setSubjects(next);
-    saveSubjects(next);
+    if (subjects.includes(subject.trim())) return;
+    try {
+      const next = await addSubject(subject.trim(), subjects);
+      setSubjects(next);
+    } catch (err) {
+      setToast({ type: "warn", msg: err.message || "Could not add subject." });
+    }
   }
 
-  function handleRemoveSubject(subject) {
-    const next = subjects.filter((s) => s !== subject);
-    setSubjects(next);
-    saveSubjects(next);
+  async function handleRemoveSubject(subject) {
+    try {
+      const next = await removeSubject(subject);
+      setSubjects(next);
+    } catch (err) {
+      setToast({ type: "warn", msg: err.message || "Could not remove subject." });
+    }
+  }
+
+  if (!isSupabaseConfigured) {
+    return <SetupNotice />;
+  }
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <p>Loading the register…</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="loading-screen">
+        <p className="loading-error">Couldn't load data: {loadError}</p>
+        <button className="btn-primary" onClick={refresh}>
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -96,7 +155,7 @@ export default function App() {
       <div className="main-column">
         <header className="topbar">
           <div className="topbar-title">
-            <span className="topbar-eyebrow">Class Register</span>
+            <span className="topbar-eyebrow">Class Register &middot; Synced</span>
             <h1>Student Marks Portal</h1>
           </div>
           <nav className="tab-switch" aria-label="Sections">
