@@ -13,7 +13,6 @@ dist-ssr
 *.local
 
 # Environment variables (contains your Supabase keys - do not commit)
-.env
 .env.local
 
 # Editor directories and files
